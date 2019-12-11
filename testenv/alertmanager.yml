@@ -1,0 +1,10 @@
+receivers:
+  - name: "alert_bot"
+    webhook_configs:
+      - url: "http://bot:8030/"
+
+route:
+  receiver: 'alert_bot'
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 1m

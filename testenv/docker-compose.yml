@@ -1,0 +1,48 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:3.0
+    volumes:
+      - ./datadir:/data/db
+  rocketchat:
+    depends_on:
+      - mongo
+    image: rocket.chat
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+  webapp:
+    image: python:3.7
+    volumes:
+      - ./serv.py:/serv.py
+    command: python3 /serv.py
+    ports:
+      - 8000:8000
+  bot:
+    image: prometheus_alert_bot:latest
+    ports:
+      - 8030:8030
+    command: ./bot
+    volumes:
+      - ./bot_config.yml:/etc/prometheus_alert_bot/config.yml
+    env_file:
+      - .env
+  alertmanager:
+    image: prom/alertmanager
+    depends_on:
+      - bot
+      - rocketchat
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  prometheus:
+    depends_on:
+      - webapp
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./test_alert.rules:/test_alert.rules
+    ports:
+      - 9090:9090

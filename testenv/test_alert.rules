@@ -1,0 +1,11 @@
+groups:
+- name: example
+  rules:
+  - alert: SomethingBad
+    expr: my_metric_total > 120
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: Some metric was be broken
+      description: Metric with label which="{{$labels.which}}" was broken.
